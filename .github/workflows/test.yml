@@ -1,0 +1,51 @@
+name: Test Live Website
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test-production:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
+        run: |
+          npm init -y
+          npm install @playwright/test
+          npx playwright install
+
+      - name: Run Tests on GitHub Pages
+        run: |
+          cat > tests/registration.spec.js << 'EOF'
+          const { test, expect } = require('@playwright/test');
+
+          test('Form Validation Test @live', async ({ page }) => {
+            // Canlı GitHub Pages URL'si
+            await page.goto('https://dddenziiii.github.io/SENG324/');
+            
+            // Test 1: Form görünür mü?
+            await expect(page.locator('#firstName')).toBeVisible();
+            
+            // Test 2: Geçersiz email hatası
+            await page.locator('#email').fill('invalid-email');
+            await page.locator('button[type="submit"]').click();
+            await expect(page.locator('#email')).toHaveClass(/is-invalid/);
+          });
+          EOF
+          
+          npx playwright test --reporter=html
+
+      - name: Upload Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-report
+          path: playwright-report/
