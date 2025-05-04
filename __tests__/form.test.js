@@ -1,6 +1,6 @@
 describe('Registration Form', () => {
     beforeAll(async () => {
-      await page.goto('http://localhost:8000'); // Adjust path to your HTML file
+      await page.goto('http://localhost:5500'); // Adjust path to your HTML file
     });
   
     it('should display the registration form', async () => {
