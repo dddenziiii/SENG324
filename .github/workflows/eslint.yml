@@ -1,0 +1,26 @@
+name: JavaScript Quality Check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  eslint-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install and run ESLint
+        run: |
+          npm install -g eslint eslint-plugin-html
+          eslint "**/*.{js,html}" --ext .js,.html
