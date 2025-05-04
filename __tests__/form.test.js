@@ -1,12 +1,14 @@
 describe('Registration Form', () => {
     beforeAll(async () => {
-      await page.goto('http://localhost:5500'); // Adjust path to your HTML file
-    });
-  
-    it('should display the registration form', async () => {
-      await expect(page).toMatch('User Registration Portal');
-      await expect(page).toMatchElement('form#signupForm');
-    });
+        // GitHub Actions'da localhost:5500'de çalışacak
+        await page.goto('http://localhost:5500/index.html'); // index.html ekledik
+      });
+    
+      // Diğer testler aynı kalabilir
+      it('should display the registration form', async () => {
+        await expect(page).toMatch('User Registration Portal');
+        await expect(page).toMatchElement('form#signupForm');
+      });
   
     it('should validate first name field', async () => {
       // Test invalid input (numbers)
