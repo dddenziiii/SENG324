@@ -1,0 +1,64 @@
+name: Responsive Design Compatibility
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  responsive-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          npm install puppeteer
+
+      - name: Create test script
+        run: |
+          echo 'const puppeteer = require("puppeteer");
+          
+          const devices = [
+            { width: 375, height: 667, name: "Mobile" },
+            { width: 768, height: 1024, name: "Tablet" },
+            { width: 1366, height: 768, name: "Desktop" },
+            { width: 1920, height: 1080, name: "Large Desktop" }
+          ];
+          
+          (async () => {
+            const browser = await puppeteer.launch();
+            const page = await browser.newPage();
+            let hasErrors = false;
+          
+            for (const device of devices) {
+              console.log(`Testing on ${device.name} (${device.width}x${device.height})`);
+              await page.setViewport({ width: device.width, height: device.height });
+              
+              try {
+                await page.goto("file://" + process.cwd() + "/index.html");
+                console.log(`${device.name} - Test passed`);
+              } catch (e) {
+                console.error(`${device.name} - Test failed:`, e);
+                hasErrors = true;
+              }
+            }
+          
+            await browser.close();
+            
+            if (hasErrors) {
+              process.exit(1);
+            }
+          })();' > responsive-test.js
+
+      - name: Run responsive tests
+        run: node responsive-test.js
