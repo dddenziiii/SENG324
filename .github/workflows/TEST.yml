@@ -1,0 +1,96 @@
+name: Test Registration Form
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      run: |
+        npm init -y
+        npm install @playwright/test
+        npx playwright install
+
+    - name: Create test file
+      run: |
+        mkdir -p tests
+        cat > tests/registration.spec.js << 'EOF'
+        const { test, expect } = require('@playwright/test');
+
+        test.describe('Registration Form Tests - SENG324', () => {
+          let page;
+          
+          test.beforeAll(async ({ browser }) => {
+            page = await browser.newPage();
+            // SENG324 GitHub Pages URL'si
+            await page.goto('https://dddenziiii.github.io/SENG324/');
+          });
+
+          test('TC1: Form başlığı görünür olmalı', async () => {
+            await expect(page.locator('h2')).toHaveText('User Registration Portal');
+          });
+
+          test('TC2: Geçersiz isim hatası (sayılar)', async () => {
+            await page.locator('#firstName').fill('John123');
+            await page.locator('button[type="submit"]').click();
+            await expect(page.locator('#firstName')).toHaveClass(/is-invalid/);
+          });
+
+          test('TC3: Geçerli isim kabulü', async () => {
+            await page.locator('#firstName').fill('John');
+            await page.locator('button[type="submit"]').click();
+            await expect(page.locator('#firstName')).not.toHaveClass(/is-invalid/);
+          });
+
+          test('TC4: Yaş sınır testi (12 yaş)', async () => {
+            const dob = new Date();
+            dob.setFullYear(dob.getFullYear() - 12);
+            await page.locator('#dob').fill(dob.toISOString().split('T')[0]);
+            await page.locator('button[type="submit"]').click();
+            await expect(page.locator('#dob')).toHaveClass(/is-invalid/);
+          });
+
+          test('TC5: Tam form gönderimi', async () => {
+            // Formu doldur
+            await page.locator('#firstName').fill('Test');
+            await page.locator('#lastName').fill('User');
+            await page.locator('#email').fill('test@example.com');
+            
+            const dob = new Date();
+            dob.setFullYear(dob.getFullYear() - 25);
+            await page.locator('#dob').fill(dob.toISOString().split('T')[0]);
+            
+            await page.locator('#password').fill('ValidPass123!');
+            await page.locator('#confirmPassword').fill('ValidPass123!');
+            await page.locator('#terms').check();
+            
+            // Submit et
+            await page.locator('button[type="submit"]').click();
+            
+            // Doğrulama raporu kontrolü
+            await expect(page.locator('#validationResultsCard')).toBeVisible();
+            await expect(page.locator('.test-pass')).toHaveCount(8);
+          });
+        });
+        EOF
+
+    - name: Run tests
+      run: npx playwright test --reporter=html
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: playwright-report
+        path: playwright-report/
