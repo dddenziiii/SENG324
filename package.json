@@ -1,0 +1,26 @@
+{
+    "scripts": {
+        "test": "jest"
+    },
+    "name": "seng324",
+    "version": "1.0.0",
+    "description": "This is an assignment work for Software Verification and Validation (SENG324) course, with contributions from our lecturer, Dr. Hilal Haznedar.",
+    "main": "jest.config.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/dddenziiii/SENG324.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/dddenziiii/SENG324/issues"
+    },
+    "homepage": "https://github.com/dddenziiii/SENG324#readme",
+    "dependencies": {
+        "jest": "^29.7.0",
+        "jest-junit": "^16.0.0",
+        "jest-puppeteer": "^11.0.0",
+        "puppeteer": "^24.8.0"
+    }
+}
